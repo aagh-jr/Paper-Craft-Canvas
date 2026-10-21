@@ -93,6 +93,9 @@
     <path class="halo" d="M5 15A10 10 0 0 1 15 5M2.5 12.5L5 15l2.5-2.5M12.5 2.5L15 5l-2.5 2.5"/>
     <path class="ink" d="M5 15A10 10 0 0 1 15 5M2.5 12.5L5 15l2.5-2.5M12.5 2.5L15 5l-2.5 2.5"/></svg>`;
 
+  const SURFACE = '<svg class="ink"></svg><div class="sheen"></div><svg class="rims"></svg>';
+  const STRIP_SHADOW = '<div class="layer shadow holed sts"></div>';
+
   let variant = 'plain';
   let pieces = [];
   let pair = null;
@@ -108,8 +111,10 @@
     el.className = 'piece';
     el.style.width = W + 'px'; el.style.height = H + 'px';
     el.innerHTML = `
-      <div class="shadow-wrap sw"><div class="layer shadow holed ss"></div></div>
-      <div class="layer tex holed sheet"><svg class="ink"></svg><div class="sheen"></div><svg class="rims"></svg></div>
+      <div class="shadow-wrap sw"><div class="layer shadow holed ss"></div>${STRIP_SHADOW}${STRIP_SHADOW}</div>
+      <div class="layer tex holed sheet">${SURFACE}</div>
+      <div class="layer tex holed strip">${SURFACE}</div>
+      <div class="layer tex holed strip">${SURFACE}</div>
       <div class="shadow-wrap fsw"><div class="layer shadow holed fs"></div></div>
       <div class="layer tex holed flap"><svg class="ink"></svg><div class="flapShade"></div><svg class="rims"></svg></div>
       ${[0, 1, 2, 3].map(k => `<div class="rot" style="left:${k === 1 || k === 2 ? W : 0}px;top:${k >= 2 ? H : 0}px;transform:rotate(${k * 90}deg)">${ROT_ICON}</div>`).join('')}`;
@@ -120,7 +125,8 @@
       body: makeBody(0, 0, 0), holes: [], texts: [], gone: false,
       peel: { on: false, C: { x: 0, y: 0 }, P: { x: 0, y: 0 }, V: { x: 0, y: 0 }, T: { x: 0, y: 0 },
               progress: 0, off: 0, offT: null, offFrames: 0, liftOff: 0 },
-      sw: q('.sw'), ss: q('.ss'), sheet: q('.sheet'), sheen: q('.sheen'),
+      sw: q('.sw'), ss: q('.ss'), sheet: q('.sheet'),
+      strips: el.querySelectorAll('.strip'), sts: el.querySelectorAll('.sts'),     // [top, bottom]
       fsw: q('.fsw'), fs: q('.fs'), flap: q('.flap'), shade: q('.flapShade'),
       rims: el.querySelectorAll('.rims'), inks: el.querySelectorAll('.ink'), handles: el.querySelectorAll('.rot'),
     };
@@ -166,14 +172,8 @@
   // World position of a piece's local origin, and its angle.
   function frame(p) {
     if (p.joined) {
-      let px = p.side === 'A' ? 0 : S / 2, py = 0, a = pair.a;
-      if (pair.hinged === p && pair.phi) {
-        const T = pivot();
-        const r = rot(px - T.x, py - T.y, pair.phi);
-        px = T.x + r.x; py = T.y + r.y; a += pair.phi;
-      }
-      const w = rot(px - S / 2, py - S / 2, pair.a);
-      return { ox: pair.x + w.x, oy: pair.y + w.y, a };
+      const w = rot((p.side === 'A' ? 0 : S / 2) - S / 2, -S / 2, pair.a);
+      return { ox: pair.x + w.x, oy: pair.y + w.y, a: pair.a };
     }
     const b = p.body, w = rot(-p.W / 2, -p.H / 2, b.a);
     return { ox: b.x + w.x, oy: b.y + w.y, a: b.a };
@@ -201,17 +201,16 @@
       const x = p.side === 'A' ? W - PERF.depth : 0;
       for (let y = PERF.start; y + PERF.len < H; y += PERF.pitch)
         cut += `<rect x='${x}' y='${y}' width='${PERF.depth}' height='${PERF.len}'/>`;
-      if (pair.torn > 0) {
-        // Along the torn stretch the bridges between slits have given way.
-        const len = pair.torn * H, y0 = pair.end === 'top' ? 0 : H - len;
-        cut += `<rect x='${p.side === 'A' ? W - .6 : 0}' y='${y0}' width='.6' height='${len}'/>`;
-      }
+      // Along the torn stretches the bridges between slits have given way.
+      const { top, bottom } = pair.tears, tx = p.side === 'A' ? W - .6 : 0;
+      if (top.L > 0) cut += `<rect x='${tx}' y='0' width='.6' height='${top.L}'/>`;
+      if (bottom.L > 0) cut += `<rect x='${tx}' y='${H - bottom.L}' width='.6' height='${bottom.L}'/>`;
     }
     const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${W} ${H}' preserveAspectRatio='none'>`
       + `<mask id='m'><rect width='${W}' height='${H}' fill='white'/><g fill='black'>${cut}</g></mask>`
       + `<rect width='${W}' height='${H}' fill='black' mask='url(#m)'/></svg>`;
     const url = cut ? `url("data:image/svg+xml,${encodeURIComponent(svg)}")` : 'none';
-    for (const el of [p.sheet, p.flap, p.ss, p.fs]) { el.style.webkitMaskImage = url; el.style.maskImage = url; }
+    for (const el of [p.sheet, p.flap, p.ss, p.fs, ...p.strips, ...p.sts]) { el.style.webkitMaskImage = url; el.style.maskImage = url; }
     const rims = p.holes.map(h => `<circle cx="${h.x}" cy="${h.y}" r="${h.r + .5}"/>`).join('');
     p.rims.forEach(el => { el.innerHTML = rims; });
   }
@@ -229,7 +228,9 @@
       p.body = makeBody(cx, cy, -0.035);
       pieces = [p];
     } else {
-      pair = { ...makeBody(cx, cy, -0.035), torn: 0, end: null, phi: 0, phiV: 0, phiTarget: 0, hinged: null, maskTorn: 0 };
+      // Each end of the perforation tears independently; the halves part once the fronts meet.
+      const tear = () => ({ L: 0, k: 0, kV: 0, kT: 0, piece: null });
+      pair = { ...makeBody(cx, cy, -0.035), tears: { top: tear(), bottom: tear() }, maskSig: '0,0' };
       pieces = [createPiece(S / 2, S, 0, 'A'), createPiece(S / 2, S, S / 2, 'B')];
     }
     updateHint();
@@ -240,7 +241,7 @@
     if (typing) t = 'Click the paper to type · click a line to edit it · T or Esc when done';
     else if (punching) t = 'Click to punch a hole · click a line of text to punch its letters out · H or Esc when done';
     else if (pieces.every(p => p.gone)) t = 'Peeled clean off. Hit Reset for a fresh sheet';
-    else if (pair) t = 'Peel a corner of either half past halfway to rip it off · drag the middle to tear it open · grab outside a corner to rotate';
+    else if (pair) t = 'Pull a half sideways to tear the perforation from the nearer end · tear from both ends to meet in the middle · peel a corner to rip it off';
     else t = 'Drag to slide · grab outside a corner to rotate · peel a corner past halfway and it comes off';
     hintEl.textContent = t;
   }
@@ -344,7 +345,6 @@
       setCursor(rotCursor(frame(p).a + h.k * Math.PI / 2));
     } else {
       if (!p.joined) toFront(p);
-      else if (pair.torn === 0) pair.end = null;
       const q = h.q, nc = nearestCorner(p, q);
       const edge = Math.min(q.x, q.y, p.W - q.x, p.H - q.y);
       const perfEdge = p.joined && (p.side === 'A' ? p.W - q.x : q.x) === edge;
@@ -420,9 +420,10 @@
         pe.offT = { x: pe.C.x + ux / L * R * 2.15, y: pe.C.y + uy / L * R * 2.15 };
       }
     }
-    if (drag.type === 'tear') {
-      pair.phiTarget = 0;
-      if (pair.torn < .02) { pair.torn = 0; pair.end = null; }
+    if (drag.type === 'tear' && drag.end) {
+      const t = pair.tears[drag.end];
+      t.kT = 0;
+      if (t.L < 3) t.L = 0;
     }
     drag = null;
     setCursor('');
@@ -471,48 +472,47 @@
       pe.T = { x: pe.C.x + vx * (1 - k), y: pe.C.y + vy * (1 - k) };
     } else pe.T = q;
     pe.progress = Math.min(L, max) / (2 * R);
-
-    // Peeling a joined half tears the perforation from the end nearest the fold,
-    // and once the fold passes halfway that half rips free.
-    if (p.joined) {
-      if (pair.torn === 0) pair.end = pe.C.y < p.H / 2 ? 'top' : 'bottom';
-      pair.torn = Math.max(pair.torn, clamp(pe.progress / .5, 0, 1));
-      if (pair.torn > .97) separate(p, x, y, 'peel');
-    }
   }
 
   /* ---------- Perforation tearing ----------
-     The tear starts at one end of the perforation and runs to the other. The held half
-     swings away around the far (still attached) end, opening a wedge as the tear grows. */
+     Each end of the perforation has its own tear front. Only the torn strip of the held
+     half bends open (a shear that leaves the front itself in place), so the untorn part
+     stays joined. Tears from the top and bottom can meet in the middle. */
 
-  function pivot(end = pair.end) {
-    return { x: S / 2, y: end === 'top' ? S : 0 };
-  }
-  function openSign(p, end) {
-    const side = p.side === 'A' ? -1 : 1, e = end === 'top' ? -1 : 1;
-    return -e * side;
-  }
-  function openAmount(p, end, q0, q) {
-    const T = pivot(end);
-    const phi = wrap(Math.atan2(q.y - T.y, q.x - T.x) - Math.atan2(q0.y - T.y, q0.x - T.x));
-    return Math.max(0, phi * openSign(p, end));
-  }
+  const tornThrough = () => pair.tears.top.L + pair.tears.bottom.L >= S - 2;
 
   function tearDrag(x, y) {
-    const p = drag.piece, q = toPair(x, y);
-    if (!pair.end) {
-      if (hypot(q.x - drag.q0.x, q.y - drag.q0.y) < 4) return;
-      const top = openAmount(p, 'top', drag.q0, q), bottom = openAmount(p, 'bottom', drag.q0, q);
-      if (!top && !bottom) return;
-      pair.end = top >= bottom ? 'top' : 'bottom';
+    const p = drag.piece, q = toPair(x, y), dir = p.side === 'A' ? -1 : 1;
+    const { top, bottom } = pair.tears;
+    // Pull on whichever tear front is nearer to where the half was grabbed.
+    drag.end ??= drag.q0.y - top.L < S - bottom.L - drag.q0.y ? 'top' : 'bottom';
+    const t = pair.tears[drag.end];
+    if (t.piece !== p && Math.abs(t.k) > .002) return;     // other half's strip is still settling
+    t.piece = p;
+    const d = Math.max(0, (q.x - drag.q0.x) * dir);
+    const want = Math.min(d * 5, S);
+    if (want > t.L) t.L += (want - t.L) * .35;
+    t.kT = dir * Math.min(.22, d / Math.max(t.L, 24));
+    if (tornThrough()) separate(p, x, y);
+  }
+
+  // A fold that crosses the perforation tears it from that end up to the crease.
+  function foldTear(p) {
+    const pe = p.peel, dx = pe.C.x - pe.P.x, dy = pe.C.y - pe.P.y, dist = hypot(dx, dy);
+    if (dist < .5) return;
+    const n = { x: dx / dist, y: dy / dist };
+    const M = { x: (pe.C.x + pe.P.x) / 2, y: (pe.C.y + pe.P.y) / 2 };
+    // Along the perforation edge the folded side is where s0 + y * n.y > 0.
+    const s0 = ((p.side === 'A' ? p.W : 0) - M.x) * n.x - M.y * n.y;
+    let top = 0, bottom = 0;
+    if (Math.abs(n.y) < 1e-6) top = s0 > 0 ? p.H : 0;
+    else {
+      const ys = clamp(-s0 / n.y, 0, p.H);
+      if (n.y > 0) bottom = p.H - ys; else top = ys;
     }
-    if (pair.hinged !== p && pair.phi) return;      // other half is still swinging shut
-    pair.hinged = p;
-    const amt = openAmount(p, pair.end, drag.q0, q);
-    const want = clamp((amt - .03) / .3, 0, 1);
-    if (want > pair.torn) pair.torn += (want - pair.torn) * .35;
-    pair.phiTarget = openSign(p, pair.end) * Math.min(amt, .02 + .2 * pair.torn);
-    if (pair.torn > .97) separate(p, x, y);
+    const T = pair.tears;
+    T.top.L = Math.max(T.top.L, top); T.bottom.L = Math.max(T.bottom.L, bottom);
+    if (tornThrough()) separate(p, lastP.x, lastP.y, 'peel');
   }
 
   function separate(held, x, y, keep) {
@@ -749,15 +749,19 @@
       }
       keepOnScreen(pair, S * .25);
       settle(pair, drag && pieces.includes(drag.piece) ? liftFor(drag.piece) : 0);
-      pair.phiV = (pair.phiV + (pair.phiTarget - pair.phi) * .3) * .6;
-      pair.phi += pair.phiV;
-      if (!drag && Math.abs(pair.phi) < .0005) { pair.phi = 0; pair.hinged = null; }
-      if (Math.abs(pair.torn - pair.maskTorn) > .01) { pair.maskTorn = pair.torn; pieces.forEach(updateMask); }
+      for (const t of Object.values(pair.tears)) {
+        t.kV = (t.kV + (t.kT - t.k) * .3) * .6;
+        t.k += t.kV;
+        if (!t.kT && Math.abs(t.k) < .0005) t.k = t.kV = 0;
+      }
+      const sig = `${Math.round(pair.tears.top.L)},${Math.round(pair.tears.bottom.L)}`;
+      if (sig !== pair.maskSig) { pair.maskSig = sig; pieces.forEach(updateMask); }
     }
 
-    for (const p of pieces) {
+    for (const p of [...pieces]) {     // a copy: tearing through reorders pieces
       if (p.gone) continue;
       const b = p.body, pe = p.peel;
+      if (p.joined && pe.on && (pe.off || (drag?.type === 'peel' && drag.piece === p))) foldTear(p);
       if (!p.joined) {
         if (!(drag?.piece === p && (drag.type === 'move' || drag.type === 'rotate'))) {
           b.x += b.vx; b.y += b.vy; b.a += b.va;
@@ -798,7 +802,7 @@
   function render(p) {
     const f = frame(p), l = p.joined ? pair.lift : p.body.lift, pe = p.peel, lo = pe.liftOff;
     p.el.style.transform = `translate(${f.ox}px,${f.oy - 40 * lo * lo}px) rotate(${f.a}rad)`;
-    p.sheen.style.setProperty('--ang', (115 - f.a * 57.3) + 'deg');
+    p.el.style.setProperty('--ang', (115 - f.a * 57.3) + 'deg');
 
     // Light comes from above, so shadow offsets are fixed in screen space.
     const so = rot(.5 + 3 * l, 1.5 + 14 * l, -f.a);
@@ -806,14 +810,15 @@
     p.ss.style.transform = `translate(${so.x}px,${so.y}px)`;
     p.ss.style.background = `rgb(52 40 20 / ${.09 + .07 * l})`;
 
-    const baseClip = isTorn(p) ? polyCss(p.base) : 'none';
+    const stripClip = renderStrips(p, so);
+    const baseClip = stripClip ?? (isTorn(p) ? polyCss(p.base) : 'none');
     const dx = pe.C.x - pe.P.x, dy = pe.C.y - pe.P.y, dist = hypot(dx, dy);
     const flat = () => {
       p.sheet.style.display = p.sw.style.display = 'block';
       p.sheet.style.clipPath = p.ss.style.clipPath = baseClip;
       p.flap.style.display = p.fsw.style.display = 'none';
     };
-    if (!pe.on || dist < .5) return flat();
+    if (!pe.on || dist < .5 || stripClip) return flat();
 
     const n = { x: dx / dist, y: dy / dist };
     const M = { x: (pe.C.x + pe.P.x) / 2, y: (pe.C.y + pe.P.y) / 2 };
@@ -856,6 +861,29 @@
     p.fs.style.clipPath = polyCss(part);
     p.fs.style.transform = `translate(${fo.x}px,${fo.y}px) ${mtx}`;
     p.fs.style.background = `rgb(52 40 20 / ${.08 + .1 * k})`;
+  }
+
+  // Torn ends of a joined half bend open along the perforation. Each strip is sheared about
+  // its tear front, so it stays attached there. Returns the clip for the untorn middle, if any.
+  function renderStrips(p, so) {
+    const rect = (y0, y1) => polyCss([{ x: 0, y: y0 }, { x: p.W, y: y0 }, { x: p.W, y: y1 }, { x: 0, y: y1 }]);
+    let y0 = 0, y1 = p.H, any = false;
+    ['top', 'bottom'].forEach((end, i) => {
+      const t = p.joined && pair.tears[end];
+      const on = t && t.piece === p && t.k !== 0 && t.L > .5;
+      p.strips[i].style.display = p.sts[i].style.display = on ? 'block' : 'none';
+      if (!on) return;
+      any = true;
+      const sg = end === 'top' ? -1 : 1, front = end === 'top' ? t.L : p.H - t.L;
+      const m = `matrix(1,0,${sg * t.k},1,${-sg * t.k * front},0)`;
+      const clip = end === 'top' ? rect(0, front + .5) : rect(front - .5, p.H);
+      p.strips[i].style.clipPath = p.sts[i].style.clipPath = clip;
+      p.strips[i].style.transform = m;
+      p.sts[i].style.transform = `translate(${so.x}px,${so.y}px) ${m}`;
+      p.sts[i].style.background = p.ss.style.background;
+      if (end === 'top') y0 = front; else y1 = front;
+    });
+    return any ? rect(y0, y1) : null;
   }
 
   /* ---------- UI ---------- */

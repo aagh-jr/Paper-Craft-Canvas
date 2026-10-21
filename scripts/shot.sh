@@ -18,6 +18,7 @@ out=${1:?usage: scripts/shot.sh <out.png> [WIDTHxHEIGHT] [page.html] [test.js]}
 size=${2:-1100x850}
 root=$(cd "$(dirname "$0")/.." && pwd)
 page=${3:-$root/index.html}
+page="$(cd "$(dirname "$page")" && pwd)/$(basename "$page")"   # Chrome needs an absolute file:// URL
 test=${4:-}
 chrome="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 

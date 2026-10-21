@@ -26,7 +26,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 | **Text** (T) → click the paper | Type printed text onto the sheet; click a line to edit it. |
 | **Hole punch** (H) → click | Round hole; the disc falls off the screen with gravity. |
 | Hole punch → click a line of text | Letters are die-cut out and tumble away one by one. |
-| **Perforated** | Sheet with a perforation down the middle. Peel a half past halfway to rip it off, or drag from the middle to tear it open. |
+| **Perforated** | Sheet with a perforation down the middle. Pull a half sideways to tear from the nearer end; tear from both ends and they meet in the middle. A fold that crosses the perforation tears it too, so peeling a half past halfway rips it off. |
 | **Show underlay** | Puts a mock layout under the sheet to show the translucency. |
 
 ## How it works
@@ -49,9 +49,12 @@ Everything is DOM + CSS, no canvas or WebGL at runtime.
   the sheet, flap, and both shadow layers, so light passes through holes onto the table.
 - **Printed text**: SVG `<text>` in an `.ink` layer. The same markup (`textSvg`) is reused
   in the mask to die-cut it, so the holes match the glyphs exactly.
-- **Perforated sheet**: two pieces share a `pair` body while joined. Tearing is tracked
-  as `pair.torn` (0–1) from one end; at ~1 the pieces `separate()` into free bodies with
-  a notched edge (half of every perforation slit).
+- **Perforated sheet**: two pieces share a `pair` body while joined. Each end has its own
+  tear front (`pair.tears.top` / `.bottom`, length `L` in px). While pulled, the torn
+  strip of the held half is drawn in a `.strip` layer, sheared about the front so it stays
+  attached there; the untorn middle never moves. A peel fold that crosses the perforation
+  extends the tear to the crease (`foldTear`). When the fronts meet, the pieces
+  `separate()` into free bodies with a notched edge (half of every perforation slit).
 - **Falling bits** (`chads`): discs and letters are simple particles with gravity,
   flutter, and spin, removed once they leave the screen.
 
