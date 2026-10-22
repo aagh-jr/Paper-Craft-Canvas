@@ -3,33 +3,124 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Parchment Study</title>
+<title>Abel Angel · Product Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500&display=swap">
 <link rel="stylesheet" href="src/style.css">
+<script>
+  // Light or dark: the last choice made with the switch, else the system setting.
+  (() => { let t; try { t = localStorage.getItem('theme'); } catch {}
+    document.documentElement.dataset.theme = t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); })();
+</script>
 </head>
-<body>
-  <div class="label">Parchment <span>— study 01</span></div>
-
-  <div id="underlay" aria-hidden="true">
-    <div class="u-chair"></div>
-    <div class="u-photo"></div>
-    <div class="u-txt a">no. 003<br>WIRE CHAIR</div>
-    <div class="u-txt b">no. 002<br>EGG STUDY 01</div>
-    <div class="u-txt c">Material<br>Origin</div>
-    <div class="u-txt d">Oil on canvas<br>France</div>
+<body class="no-links no-blocks">
+  <div class="page">
+    <nav class="nav" aria-label="Primary">
+      <a class="pill" href="#work" aria-current="page">Work</a>
+      <a class="pill" href="/lab">Lab</a>
+      <a class="pill" href="/about">About</a>
+      <a class="pill" href="/resume.pdf">Resume</a>
+    </nav>
+    <main><div id="slot" aria-hidden="true"></div></main>
+    <a class="see-more" href="#work">See my work ↓</a>
+  </div>
+  <div class="corner">
+    <a class="pill" href="mailto:">Contact</a>
+    <button id="themeBtn" class="themeBtn" type="button" aria-label="Switch to dark mode">
+      <svg class="sun" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3.05 3.05l1.13 1.13M11.82 11.82l1.13 1.13M3.05 12.95l1.13-1.13M11.82 4.18l1.13-1.13"/></svg>
+      <svg class="moon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 9.6A5.6 5.6 0 0 1 6.4 2.5a5.6 5.6 0 1 0 7.1 7.1z"/></svg>
+    </button>
   </div>
 
+  <!-- The letter is printed onto the parchment sheet (src/main.js puts it there). -->
+  <template id="letter">
+    <article class="note">
+      <time class="date"></time>
+      <p class="greeting">Hello World,</p>
+      <p class="body">I’m a <span class="em" data-block="1">product builder</span> who designs around people’s mental models.
+        <span class="thesis">Anyone can ship fast now, but fewer people stop to ask whether the thing should exist.</span></p>
+      <p class="signoff">Sincerely,</p>
+      <span class="sig"><svg class="signature" data-block="3" viewBox="0 0 73 9" shape-rendering="crispEdges" fill="#1C1C18" aria-hidden="true"><path d="M3 0h1v1h-1zM14 0h1v1h-1zM28 0h1v1h-1zM36 0h1v1h-1zM72 0h1v1h-1zM3 1h1v1h-1zM13 1h1v1h-1zM27 1h1v1h-1zM36 1h1v1h-1zM71 1h1v1h-1zM2 2h1v1h-1zM4 2h1v1h-1zM12 2h3v1h-3zM19 2h3v1h-3zM26 2h1v1h-1zM35 2h1v1h-1zM37 2h1v1h-1zM42 2h2v1h-2zM45 2h2v1h-2zM54 2h3v1h-3zM59 2h2v1h-2zM63 2h3v1h-3zM70 2h1v1h-1zM2 3h1v1h-1zM4 3h1v1h-1zM11 3h1v1h-1zM15 3h1v1h-1zM18 3h2v1h-2zM22 3h1v1h-1zM25 3h1v1h-1zM35 3h1v1h-1zM37 3h1v1h-1zM41 3h1v1h-1zM44 3h1v1h-1zM47 3h1v1h-1zM53 3h1v1h-1zM57 3h2v1h-2zM62 3h2v1h-2zM66 3h1v1h-1zM69 3h1v1h-1zM1 4h5v1h-5zM10 4h1v1h-1zM15 4h1v1h-1zM17 4h1v1h-1zM20 4h2v1h-2zM24 4h1v1h-1zM34 4h5v1h-5zM43 4h1v1h-1zM47 4h1v1h-1zM52 4h1v1h-1zM57 4h1v1h-1zM61 4h1v1h-1zM64 4h2v1h-2zM68 4h1v1h-1zM1 5h1v1h-1zM5 5h1v1h-1zM9 5h2v1h-2zM14 5h1v1h-1zM17 5h1v1h-1zM24 5h1v1h-1zM27 5h1v1h-1zM34 5h1v1h-1zM38 5h1v1h-1zM42 5h1v1h-1zM46 5h1v1h-1zM49 5h1v1h-1zM52 5h1v1h-1zM56 5h1v1h-1zM61 5h1v1h-1zM68 5h1v1h-1zM71 5h1v1h-1zM0 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM11 6h3v1h-3zM18 6h4v1h-4zM25 6h2v1h-2zM33 6h1v1h-1zM39 6h1v1h-1zM41 6h1v1h-1zM47 6h2v1h-2zM53 6h3v1h-3zM62 6h4v1h-4zM69 6h2v1h-2zM50 7h1v1h-1zM54 7h1v1h-1zM51 8h3v1h-3z"/></svg><span class="sig-text">Abel Angel</span></span>
+      <div class="links">
+        <a href="https://www.linkedin.com/"><span class="dither">LinkedIn ↗</span></a>
+        <a href="https://github.com/aagh-jr"><span class="dither">GitHub ↗</span></a>
+        <a href="mailto:"><span class="dither">Email ↗</span></a>
+        <a href="/resume.pdf"><span class="dither">Resume ↗</span></a>
+      </div>
+    </article>
+  </template>
+
+  <div id="blocks" aria-hidden="true"></div>
   <div id="stage"></div>
   <div id="chads"></div>
-
-  <div class="bar">
-    <div class="hint" id="hint"></div>
-    <button id="text">Text</button>
-    <button id="punch">Hole punch</button>
-    <button id="perf">Perforated</button>
-    <button id="toggleUnder">Show underlay</button>
-    <button id="reset">Reset</button>
+  <div class="intros" role="group" aria-label="Intro animation">
+    <span>Intro</span>
+    <button data-intro="a">A · pre-punched</button>
+    <button data-intro="b">B · punch on landing</button>
+  </div>
+  <div class="paperbar">
+    <div class="stock" role="group" aria-label="Paper">
+      <button data-stock="parchment" aria-pressed="true">Parchment</button>
+      <button data-stock="vellum" aria-pressed="false">Vellum</button>
+      <button data-stock="construction" aria-pressed="false">Construction</button>
+      <button data-stock="metallic" aria-pressed="false">Metallic</button>
+    </div>
+    <div id="swatches" class="swatches" role="group" aria-label="Paper color"></div>
+    <div class="stock" role="group" aria-label="Corners">
+      <button data-corner="square" aria-pressed="true">Square</button>
+      <button data-corner="scalloped" aria-pressed="false">Scalloped</button>
+    </div>
+  </div>
+  <div class="paperbar edgebar">
+    <div class="stock" role="group" aria-label="Texture"><span>Texture</span>
+      <button data-tex="shader" aria-pressed="true">Shader</button>
+      <button data-tex="generator" aria-pressed="false">Generator</button>
+      <button data-tex="split" aria-pressed="false">Split</button>
+    </div>
+    <div class="stock" role="group" aria-label="Border"><span>Border</span>
+      <button data-border="none" aria-pressed="true">None</button>
+      <button data-border="hills" aria-pressed="false">Hills</button>
+    </div>
+  </div>
+  <label class="fontpick">Font
+    <select id="fontSelect"></select>
+  </label>
+  <div id="markBar" class="markBar" role="toolbar" aria-label="Mark the selected words" hidden>
+    <button type="button" data-mark="cut">Punch out</button>
+    <button type="button" data-mark="in">Press in</button>
+    <button type="button" data-mark="out">Raise</button>
+    <button type="button" data-mark="none">Unmark</button>
+  </div>
+  <div class="switches">
+    <button id="editToggle" class="toggle" role="switch" aria-checked="false">
+      <span class="track" aria-hidden="true"><span class="knob"></span></span>Edit text
+    </button>
+    <button id="binderToggle" class="toggle" role="switch" aria-checked="false">
+      <span class="track" aria-hidden="true"><span class="knob"></span></span>Binder holes
+    </button>
+    <button id="linksToggle" class="toggle" role="switch" aria-checked="false">
+      <span class="track" aria-hidden="true"><span class="knob"></span></span>Link tabs
+    </button>
+    <button id="resetSize" class="reset" hidden>Reset size</button>
+    <button id="resizeToggle" class="toggle" role="switch" aria-checked="false">
+      <span class="track" aria-hidden="true"><span class="knob"></span></span>Resize
+    </button>
+    <button id="thickToggle" class="toggle" role="switch" aria-checked="false">
+      <span class="track" aria-hidden="true"><span class="knob"></span></span>Thick
+    </button>
+    <button id="blocksToggle" class="toggle" role="switch" aria-checked="false">
+      <span class="track" aria-hidden="true"><span class="knob"></span></span>Color blocks
+    </button>
+    <button id="cutToggle" class="toggle" role="switch" aria-checked="false">
+      <span class="track" aria-hidden="true"><span class="knob"></span></span>Show effects
+    </button>
+    <button id="indentToggle" class="toggle" role="switch" aria-checked="false">
+      <span class="track" aria-hidden="true"><span class="knob"></span></span>Indent
+    </button>
   </div>
 
+<script src="src/paper-texture.js"></script>
+<script src="src/paper-shader.js"></script>
 <script src="src/main.js"></script>
 </body>
 </html>

@@ -1,19 +1,49 @@
-# Parchment
+# Paper Craft Canvas
 
-A sheet of parchment paper you can play with in the browser: slide it, flick it,
-rotate it, fold and peel its corners, punch holes in it, type on it and punch the
-letters out, or tear a perforated sheet in half.
+A paper editor (it started as a toy called Parchment).
 
-The idea is a small, tactile web toy that eventually *gives you something* to keep,
-in the spirit of Receiptify. That part isn't built yet.
+A sheet of paper you can play with in the browser, and the workbench for designing new papers.
+It's the full version of the letter on the portfolio home page (aagh.site): the same sheet,
+plus every switch for trying out stocks, colors, edges and effects. When a combination looks
+right, copy the files into the portfolio (see "Porting to the portfolio" below).
+
+## The toolbar
+
+| Control | What it changes |
+| --- | --- |
+| Font | The letter's typeface |
+| Texture: Shader / Generator / Split | The paper texture: Paper Shaders' `paper-texture` (WebGL2), the original canvas generator (`drawParchment`), or shader on the left half and generator on the right |
+| Border: None / Hills | A row of round bumps around the whole edge, one round hill per corner |
+| Parchment / Vellum / Construction / Metallic | Paper stock, each with its own palette of colors |
+| Square / Scalloped | Corner shape (a border takes its place) |
+| Edit text, Binder holes, Link tabs, Resize, Thick, Color blocks, Show effects, Indent | The switches, bottom right |
+| Intro A / B | Replays either entrance |
+| Cmd/Ctrl+Z | Steps back through all of the above |
+
+The letter itself: select words while editing to punch them out, press them in or raise them.
+H toggles the hole punch, T the text tool.
+
+## Porting to the portfolio
+
+The portfolio home page runs these same scripts with the toolbar left out. It keeps its own
+copies in `public/paper/` (`main.js`, `paper-texture.js`, `paper-shader.js`, and the paper
+styles in `paper.css`), and sets `window.PAPER_CONFIG` for its starting choices (e.g.
+`{ border: 'hills', keys: false, ignore: '#work' }`). To bring a change over, copy the
+changed script; for styles, copy the paper rules (not the toolbar or page rules) into
+`paper.css`.
 
 ## Run it
 
-No build step and no dependencies. Open `index.html` in a browser, or serve the folder:
+No build step. One dependency, `@paper-design/shaders` (pinned to 0.0.82), loaded straight
+from `node_modules`, so install it once and serve the folder:
 
 ```sh
+npm install
 python3 -m http.server 8000   # then open http://localhost:8000
 ```
+
+Opened from disk (`file://`) the browser won't load the shader module, so the paper falls
+back to the generator; everything else works the same.
 
 ## Interactions
 
@@ -64,6 +94,8 @@ Everything is DOM + CSS, no canvas or WebGL at runtime.
 index.html        markup + toolbar
 src/style.css     all styles
 src/main.js       texture, pieces, physics, folding, punch, text, tearing
+src/paper-texture.js  drawParchment, the canvas texture generator (the fallback)
+src/paper-shader.js   one frame of Paper Shaders' paper-texture, via WebGL2
 scripts/shot.sh   headless Chrome screenshot helper for checking visual changes
 ```
 

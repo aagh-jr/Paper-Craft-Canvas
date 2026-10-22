@@ -1,40 +1,135 @@
-:root { --ink:#1d1b18; --muted:#9a9488; --s:480px; --serif:"Iowan Old Style","Palatino",Georgia,serif; }
-* { box-sizing:border-box; }
-html, body { margin:0; height:100%; background:#fff; overflow:hidden; color:var(--ink);
-  font:12px/1.4 ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", sans-serif; -webkit-font-smoothing:antialiased; }
-body { touch-action:none; user-select:none; -webkit-user-select:none; }
+/* SF Mono for the letter, from the fonts installed on this Mac */
+@font-face { font-family:'SF Mono'; font-weight:400;
+  src:local('SF Mono Regular'), local('SFMono-Regular'); }
+@font-face { font-family:'SF Mono'; font-weight:500;
+  src:local('SF Mono Medium'), local('SFMono-Medium'); }
 
-/* Optional content underneath, to show the translucency */
-#underlay { position:fixed; left:50%; top:50%; width:var(--s); height:var(--s); transform:translate(-50%,-50%);
-  opacity:0; transition:opacity .5s ease; pointer-events:none; font-family:"Iowan Old Style","Palatino",Georgia,serif; }
-body.under #underlay { opacity:1; }
-.u-photo { position:absolute; right:9%; top:9%; width:40%; height:48%;
-  background:radial-gradient(circle at 62% 74%, #efe6d2 0 17%, transparent 18%),
-             radial-gradient(circle at 22% 58%, #f3d7a6 0 15%, transparent 16%),
-             linear-gradient(160deg,#b98e8a,#93625f); }
-.u-chair { position:absolute; left:9%; top:9%; width:40%; height:48%; background:#d9d6d0; }
-.u-chair::before { content:""; position:absolute; left:28%; top:22%; width:44%; height:52%;
-  border:3px solid #6f6a62; border-top-width:10px; border-bottom:none; border-radius:4px 4px 0 0; }
-.u-txt { position:absolute; font-size:calc(var(--s) * .028); line-height:1.25; }
-.u-txt.a { left:9%; top:62%; } .u-txt.b { left:55%; top:62%; }
-.u-txt.c { left:9%; top:78%; } .u-txt.d { left:55%; top:78%; }
+/* The letter's other faces, all installed on this Mac: the bianzhidai pixel styles (the
+   signature's Pearl among them, in ~/Library/Fonts/bianzhidai) and Apple's SF and New York
+   families (/Library/Fonts). Loaded by PostScript name, so nothing is downloaded. */
+@font-face { font-family:'bianzhidai Pearl'; font-weight:400 500; src:local('bianzhidai_noBG-Pearl'); }
+@font-face { font-family:'bianzhidai Base'; font-weight:400 500; src:local('bianzhidai_noBG-Base'); }
+@font-face { font-family:'bianzhidai Bubble'; font-weight:400 500; src:local('bianzhidai_noBG-Bubble'); }
+@font-face { font-family:'bianzhidai Cloud'; font-weight:400 500; src:local('bianzhidai_noBG-Cloud'); }
+@font-face { font-family:'bianzhidai Cube'; font-weight:400 500; src:local('bianzhidai_noBG-Cube'); }
+@font-face { font-family:'bianzhidai Messy'; font-weight:400 500; src:local('bianzhidai_noBG-Messy'); }
+@font-face { font-family:'bianzhidai Ring'; font-weight:400 500; src:local('bianzhidai_noBG-Ring'); }
+@font-face { font-family:'bianzhidai Stitches'; font-weight:400 500; src:local('bianzhidai_noBG-Stitches'); }
+@font-face { font-family:'SF Pro Text'; font-weight:400; src:local('SFProText-Regular'); }
+@font-face { font-family:'SF Pro Text'; font-weight:500; src:local('SFProText-Medium'); }
+@font-face { font-family:'SF Pro Display'; font-weight:400; src:local('SFProDisplay-Regular'); }
+@font-face { font-family:'SF Pro Display'; font-weight:500; src:local('SFProDisplay-Medium'); }
+@font-face { font-family:'SF Pro Rounded'; font-weight:400; src:local('SFProRounded-Regular'); }
+@font-face { font-family:'SF Pro Rounded'; font-weight:500; src:local('SFProRounded-Medium'); }
+@font-face { font-family:'SF Compact Text'; font-weight:400; src:local('SFCompactText-Regular'); }
+@font-face { font-family:'SF Compact Text'; font-weight:500; src:local('SFCompactText-Medium'); }
+@font-face { font-family:'SF Compact Display'; font-weight:400; src:local('SFCompactDisplay-Regular'); }
+@font-face { font-family:'SF Compact Display'; font-weight:500; src:local('SFCompactDisplay-Medium'); }
+@font-face { font-family:'SF Compact Rounded'; font-weight:400; src:local('SFCompactRounded-Regular'); }
+@font-face { font-family:'SF Compact Rounded'; font-weight:500; src:local('SFCompactRounded-Medium'); }
+@font-face { font-family:'New York Small'; font-weight:400; src:local('NewYorkSmall-Regular'); }
+@font-face { font-family:'New York Small'; font-weight:500; src:local('NewYorkSmall-Medium'); }
+@font-face { font-family:'New York Medium'; font-weight:400; src:local('NewYorkMedium-Regular'); }
+@font-face { font-family:'New York Medium'; font-weight:500; src:local('NewYorkMedium-Medium'); }
+@font-face { font-family:'New York Large'; font-weight:400; src:local('NewYorkLarge-Regular'); }
+@font-face { font-family:'New York Large'; font-weight:500; src:local('NewYorkLarge-Medium'); }
+@font-face { font-family:'New York Extra Large'; font-weight:400; src:local('NewYorkExtraLarge-Regular'); }
+@font-face { font-family:'New York Extra Large'; font-weight:500; src:local('NewYorkExtraLarge-Medium'); }
+
+/* Tokens from the hero design (HERO-HANDOFF.md) */
+:root { --paper:#FFFFFF; --ink:#1C1C18; --ink-muted:#5E5D56; --ink-nav:#55554E; --surface:#F0EFEA;
+  --rule:#E3E2DB; --on-ink:#FAFAF8; --nav-bg:#F5F5F2; --nav-current:#3F3F3A; --muted:#9a9488;
+  --block-1:#F5A14A; --block-3:#E97FA0;
+  --s:480px; --letter-font:'SF Mono', ui-monospace, Menlo, monospace; --letter-track:-.05em; --serif:"Iowan Old Style","Palatino",Georgia,serif; }
+/* Dark mode: a dark table under the same translucent sheet. The page chrome flips; the letter
+   is printed ink, so .note keeps the light-mode ink. */
+:root[data-theme="dark"] { --paper:#141412; --ink:#ECEBE6; --ink-muted:#A3A29A; --ink-nav:#B5B4AC;
+  --surface:#25241F; --rule:#36352F; --on-ink:#141412; --nav-bg:var(--surface); --nav-current:var(--ink); --muted:#7d786e; }
+.note { --ink:#1C1C18; --ink-muted:#5E5D56; }
+* { box-sizing:border-box; }
+html, body { margin:0; height:100%; background:var(--paper); overflow:hidden; color:var(--ink);
+  font-family:'Geist', system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+body { touch-action:none; user-select:none; -webkit-user-select:none; }
+a { color:var(--ink); text-decoration:none; }
+a:hover { opacity:.8; }
+
+/* Page: pill nav on top, the letter centered, "See my work" at the bottom.
+   #slot only reserves the letter's space; the sheet itself lives in #stage. */
+.page { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; padding:0 16px; }
+.nav { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; padding-top:24px;
+  font-family:'Geist Mono', ui-monospace, monospace; font-size:14px; }
+/* Top right: Contact, then a square light/dark button showing the current mode */
+.corner { position:fixed; top:24px; right:20px; z-index:5; display:flex; gap:8px;
+  font-family:'Geist Mono', ui-monospace, monospace; font-size:14px; }
+.themeBtn { display:grid; place-items:center; width:32px; height:32px; padding:0; border:0; border-radius:8px;
+  background:var(--nav-bg); box-shadow:inset 0 0 0 1px var(--rule); color:var(--ink-nav); cursor:pointer;
+  transition:background .2s ease, color .2s ease; }
+.themeBtn:hover { color:var(--ink); }
+.themeBtn:focus-visible { outline:2px solid var(--ink); outline-offset:2px; }
+.themeBtn svg { fill:none; stroke:currentColor; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
+.themeBtn .moon { display:none; }
+:root[data-theme="dark"] .themeBtn .sun { display:none; }
+:root[data-theme="dark"] .themeBtn .moon { display:block; }
+@media (max-width:640px) { .nav { padding-top:72px; } }
+/* One pill per link; the current page's pill is dark */
+.pill { display:inline-flex; align-items:center; height:32px; padding:0 14px; border-radius:8px;
+  background:var(--nav-bg); box-shadow:inset 0 0 0 1px var(--rule); color:var(--ink-nav);
+  transition:background .2s ease, color .2s ease; }
+.pill:hover { color:var(--ink); opacity:1; }
+.pill[aria-current="page"] { background:var(--nav-current); box-shadow:none; color:var(--on-ink); }
+.pill:focus-visible { outline:2px solid var(--ink); outline-offset:2px; }
+/* One fixed size on every desktop browser, whatever the window height (it only narrows to fit
+   a small screen). Kept narrow enough that the sheet reads as a letter, never a square. */
+#slot { width:min(545px, calc(100vw - 32px)); visibility:hidden; }
+/* Binder holes switch: a wider left margin clears the holes, and the sheet grows by about as
+   much, so the lines break where they did without them */
+body.binder .note { --pad-l:72px; }
+body.binder #slot { width:min(580px, calc(100vw - 32px)); }
+#slot .note { position:static; }
+main { flex:1; display:flex; align-items:center; padding:clamp(12px, calc((100vh - 860px) / 2), 48px) 0; }
+.see-more { display:inline-flex; align-items:center; min-height:44px; margin-bottom:32px;
+  font-family:'Geist Mono', ui-monospace, monospace; font-size:14px; color:var(--ink-nav); }
+
+/* Blocks of color on the table, under the emphasized words; seen through the vellum */
+#blocks { position:fixed; inset:0; pointer-events:none; transition:opacity .3s ease; }
+body.no-blocks #blocks { opacity:0; }
+/* Soft glows, not boxes: each block is blurred so it melts into the background on every side */
+.block { position:absolute; border-radius:999px; filter:blur(12px); }
 
 /* Paper pieces */
-#stage { position:fixed; inset:0; opacity:0; transition:opacity .6s ease; }
+#stage { position:fixed; inset:0; opacity:0; transition:opacity .6s ease; pointer-events:none; }
 #stage.ready { opacity:1; }
-.piece { position:absolute; left:0; top:0; transform-origin:0 0; will-change:transform; }
+.piece { position:absolute; left:0; top:0; transform-origin:0 0; will-change:transform; pointer-events:auto; }
 .layer { position:absolute; left:0; top:0; }
-.tex { background-size:var(--s) var(--s);
-  -webkit-backdrop-filter:blur(5px) contrast(.82) brightness(1.04) saturate(.75);
-          backdrop-filter:blur(5px) contrast(.82) brightness(1.04) saturate(.75); }
+/* The paper's own body tone: like the original seen over its underlay, so the beige and the
+   light fiber scratches read on a white page too */
+.tex { background-color:var(--tone, rgb(204 197 185 / .62)); background-blend-mode:var(--tone-blend, normal);
+  background-size:var(--s) var(--s);
+  -webkit-backdrop-filter:blur(var(--frost, 5px)) contrast(.82) brightness(1.04) saturate(.75);
+          backdrop-filter:blur(var(--frost, 5px)) contrast(.82) brightness(1.04) saturate(.75); }
 .sheen { position:absolute; inset:0; pointer-events:none;
   background:linear-gradient(var(--ang,115deg), transparent 25%, rgb(255 255 255 / .28) 48%, transparent 72%); }
-.flap { transform-origin:0 0; display:none; overflow:hidden; }
+/* The fold's clip-path sits on a wrapper (.clipw), not the paper layer: Chrome drops a layer's
+   mask (the punched holes and cut letters) while that layer also has a clip-path. Firefox is the
+   exception, see sheetClipEl() in main.js. */
+.flapw { transform-origin:0 0; }
+.flap { display:none; overflow:hidden; }
 .flapShade { position:absolute; transform-origin:0 50%;
   background:linear-gradient(to right, rgb(255 255 255 / .7) 0, rgb(255 255 255 / .25) 14%,
     transparent 42%, rgb(110 88 52 / .07) 100%); }
 .shadow-wrap { position:absolute; inset:0; pointer-events:none; }
 .shadow { background:rgb(52 40 20 / .12); transform-origin:0 0; }
+/* The paper's thickness: its cut edge, a thin darker band along the edges facing down and right,
+   and a rounded fold where a corner is peeled (render() in main.js draws these) */
+.thick { position:absolute; left:0; top:0; width:1px; height:1px; overflow:visible; pointer-events:none; }
+.thick .edge { fill:rgb(184 175 158); }
+.tflap .edge { fill:rgb(200 192 176); }
+.tflap .rim { fill:none; stroke:rgb(188 179 162); stroke-width:2; stroke-linejoin:round; }
+.crease-light { stroke:rgb(255 255 255 / .9); stroke-width:2.4; stroke-linecap:round; }
+.crease-shade { stroke:rgb(90 70 40 / .16); stroke-width:2.4; stroke-linecap:round; filter:blur(.6px); }
+/* Light catches the top edge; the bottom edge turns away */
+.sheet { box-shadow:inset 0 1px 0 rgb(255 255 255 / .7), inset 1px 0 0 rgb(255 255 255 / .35),
+  inset 0 -1px 0 rgb(90 70 40 / .14), inset -1px 0 0 rgb(90 70 40 / .1); }
 .fsw, .strip, .sts { display:none; }
 .strip { transform-origin:0 0; }
 
@@ -47,7 +142,7 @@ body.under #underlay { opacity:1; }
 /* Punched holes */
 .holed { -webkit-mask-size:100% 100%; mask-size:100% 100%; }
 .rims { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; }
-.rims circle { fill:none; stroke:rgb(255 252 244 / .55); stroke-width:1.6; filter:blur(.6px); }
+.rims circle { fill:none; stroke:var(--cut-rim); stroke-width:1.6; filter:blur(.6px); }
 #chads { position:fixed; inset:0; pointer-events:none; }
 .chad { position:absolute; left:0; top:0; border-radius:50%;
   box-shadow:0 .5px 1.5px rgb(52 40 20 / .14); will-change:transform;
@@ -56,7 +151,8 @@ body.under #underlay { opacity:1; }
 body.punching { cursor:var(--punch-cursor), crosshair; }
 
 /* Printed text, the text editor, and punched-out letters */
-.ink { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; mix-blend-mode:multiply; }
+/* No mix-blend-mode on ink: in WebKit a blended child stops the frosted paper texture from drawing */
+.ink { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
 .ink text { fill:var(--ink); }
 .flap .ink { opacity:.4; }
 body.typing { cursor:text; }
@@ -65,15 +161,156 @@ body.typing { cursor:text; }
   user-select:text; -webkit-user-select:text; }
 .letter { position:absolute; left:0; top:0; will-change:transform; filter:drop-shadow(0 1px 1.2px rgb(60 45 20 / .4)); }
 .letter svg { display:block; overflow:visible; }
+.glyph { color:rgb(238 232 217); -webkit-text-stroke:.5px rgb(150 128 92 / .35); white-space:pre; }
+.sigCut { fill:rgb(238 232 217); }
+/* Once punched out, the cut words carry no ink at all, so nothing dark can show in the holes
+   whatever the browser does with the mask (WebKit, and Chrome mid-peel, let ink through). */
+.piece.cut .note [data-block]:not([data-mark="in"], [data-mark="out"]) { color:transparent; }
+.piece.cut .note svg[data-block] { fill:transparent; }
+.cutRim { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; filter:blur(.4px);
+  background:var(--cut-rim); -webkit-mask-size:100% 100%; mask-size:100% 100%; }
 .letter text { fill:rgb(238 232 217); stroke:rgb(150 128 92 / .35); stroke-width:.5; white-space:pre; }
 
-/* Chrome */
-.label { position:fixed; left:20px; top:18px; letter-spacing:.02em; }
-.label span { color:var(--muted); }
-.bar { position:fixed; left:20px; right:20px; bottom:18px; display:flex; gap:16px; align-items:center; color:var(--muted); }
-.bar .hint { margin-right:auto; }
-.bar button { font:inherit; color:var(--ink); background:none; border:0; padding:6px 0; cursor:pointer;
-  border-bottom:1px solid rgb(0 0 0 / .15); }
-.bar button:hover, .bar button.on { border-bottom-color:var(--ink); }
-.bar button.on::before { content:"● "; font-size:9px; vertical-align:1px; }
-@media (max-width:640px) { .bar .hint { display:none; } }
+/* The letter, printed into the parchment. The folded-back flap shows it faintly from behind. */
+.note { --pad-y:40px; --pad-x:34px; --pad-l:var(--pad-x); position:absolute; left:0; top:0; width:100%; padding:var(--pad-y) var(--pad-x) var(--pad-y) var(--pad-l); display:flex; flex-direction:column;
+  font-family:var(--letter-font); }
+/* The letter's text, cut-out words included, can be selected like any page text */
+.sheet .note { user-select:text; -webkit-user-select:text; cursor:text; }
+.sheet .note a { cursor:pointer; }
+.note ::selection { background:rgb(110 155 234 / .35); }
+.flap .note { opacity:.4; }
+.note p { margin:0; font-size:18px; line-height:29px; }
+/* SF Mono set a little tighter than its default spacing */
+.note p, .links { letter-spacing:var(--letter-track); }
+.greeting { color:var(--ink-muted); }
+/* Today's date, top right, like the head of a letter */
+.date { position:absolute; top:calc(var(--pad-y) * .6); right:var(--pad-x); font-size:14px; letter-spacing:-.02em; color:var(--ink-muted); }
+.note .body { margin-top:16px; color:var(--ink-muted); }
+.note .em { color:var(--ink); }
+.thesis { display:block; margin-top:29px; }
+/* Indent switch: a tab before each paragraph (not the greeting or the sign-off) */
+body.indent .note .body { text-indent:4ch; }
+.signoff { margin-top:22px !important; color:var(--ink-muted); }
+/* Pixel signature: Pearl on its 10-unit grid. Whole pixels per unit only (6, 5 or 4), never fluid. */
+.sig { --sig-h:36px; position:relative; display:block; width:max-content; margin-top:12px; }
+.signature { display:block; fill:var(--ink); width:calc(var(--sig-h) * 73 / 9); height:var(--sig-h); }
+/* Invisible real text over the pixel name, so it can be selected and copied like the rest */
+.sig-text { position:absolute; inset:0; color:transparent; white-space:nowrap; font-size:calc(var(--sig-h) * .8);
+  line-height:var(--sig-h); text-align:justify; text-align-last:justify; }
+/* The bottom of the sheet, under a perforated rule, is four tear-off tabs, one per link, split
+   by vertical perforations (all punched through the sheet by updateMask in main.js). The strip
+   runs edge to edge and down to the bottom edge. */
+.links { margin:24px calc(-1 * var(--pad-x)) calc(-1 * var(--pad-y)) calc(-1 * var(--pad-l)); display:grid; grid-template-columns:repeat(4, 1fr);
+  font-size:13px; }
+.links a { display:flex; align-items:center; justify-content:center; min-height:72px; }
+/* Dithered (checkerboard) underline: the one pixel-grid echo outside the name */
+.dither { padding-bottom:6px; background-image:conic-gradient(var(--ink) 25%, transparent 0 50%, var(--ink) 0 75%, transparent 0);
+  background-size:4px 4px; background-repeat:repeat-x; background-position:0 100%; }
+
+/* Intro picker, bottom-left: replays either entrance */
+.intros { position:fixed; left:20px; bottom:24px; z-index:5; display:flex; align-items:center; gap:14px;
+  font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; color:var(--ink-nav); }
+.intros button { font:inherit; color:var(--ink-nav); background:none; border:0; padding:0; min-height:44px; cursor:pointer; }
+.intros button[aria-pressed="true"] { color:var(--ink); text-decoration:underline; text-underline-offset:4px; }
+.intros button:focus-visible { outline:2px solid var(--ink); outline-offset:4px; border-radius:4px; }
+
+/* Corner switches: color blocks on/off, punch the highlighted words out of the paper, dark mode */
+.switches { position:fixed; right:20px; bottom:24px; z-index:5; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:4px 20px; }
+.toggle { display:inline-flex; align-items:center; gap:8px;
+  min-height:44px; padding:0; border:0; background:none; cursor:pointer;
+  font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; color:var(--ink-nav); }
+.track { position:relative; width:28px; height:16px; border-radius:999px; background:var(--surface);
+  box-shadow:inset 0 0 0 1px var(--rule); transition:background .2s ease; }
+.knob { position:absolute; left:2px; top:2px; width:12px; height:12px; border-radius:50%; background:#fff;
+  box-shadow:0 1px 2px rgb(0 0 0 / .2); transition:transform .2s ease; }
+.toggle[aria-checked="true"] .track { background:var(--ink); }
+.toggle[aria-checked="true"] .knob { transform:translateX(12px); }
+:root[data-theme="dark"] .toggle[aria-checked="true"] .knob { background:var(--paper); }
+.toggle:focus-visible { outline:2px solid var(--ink); outline-offset:4px; border-radius:4px; }
+
+@media (max-width:640px) {
+  /* Phones: the intro picker goes; the switches sit centered under "See my work" */
+  .intros { display:none; }
+  .switches { left:16px; right:16px; bottom:8px; justify-content:center; gap:0 16px; }
+  .see-more { margin-bottom:56px; }
+  .note { --pad-y:40px; --pad-x:24px; }
+  body.binder .note { --pad-l:56px; }
+  .note p { font-size:22px; line-height:34px; }
+  .thesis { margin-top:34px; }
+}
+@media (max-width:517px) { .sig { --sig-h:45px; } }
+@media (max-width:444px) { .sig { --sig-h:36px; } }
+/* Dark paper prints in light ink */
+body.paper-dark .note { --ink:#F2EDE3; --ink-muted:#CBC5BA; }
+/* Paper stock and color pickers, bottom-left above the intro picker */
+.paperbar { position:fixed; left:20px; bottom:68px; z-index:5; display:flex; align-items:center; gap:18px;
+  font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; color:var(--ink-nav); }
+.stock { display:flex; gap:12px; }
+.stock button { font:inherit; color:var(--ink-nav); background:none; border:0; padding:0; min-height:32px; cursor:pointer; }
+.stock button[aria-pressed="true"] { color:var(--ink); text-decoration:underline; text-underline-offset:4px; }
+.stock button:disabled { opacity:.4; cursor:default; }
+/* Texture source and border, beside the font picker */
+.edgebar { left:290px; bottom:108px; }
+.stock > span { align-self:center; }
+.swatches { display:flex; gap:8px; }
+.swatch { width:20px; height:20px; padding:0; border-radius:50%; border:0; cursor:pointer;
+  box-shadow:inset 0 0 0 1px rgb(0 0 0 / .14); }
+.swatch[aria-pressed="true"] { box-shadow:inset 0 0 0 1px rgb(0 0 0 / .14), 0 0 0 2px var(--paper), 0 0 0 3.5px var(--ink); }
+.stock button:focus-visible, .swatch:focus-visible { outline:2px solid var(--ink); outline-offset:3px; }
+/* The corner switches wrap before they reach "See my work" */
+.switches { max-width:calc(50vw - 110px); }
+.reset { font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; color:var(--ink);
+  background:none; border:0; padding:0; min-height:44px; cursor:pointer; text-decoration:underline; text-underline-offset:4px; }
+.reset[hidden] { display:none; }
+/* Resized: the letter fills the dragged-out height, its link tabs held at the bottom */
+body.sized .note { height:100%; }
+body.sized .sig { margin-bottom:34px; }
+body.sized .links { margin-top:auto; }
+@media (max-width:640px) { .paperbar, .fontpick { display:none; } .switches { max-width:none; } }
+/* Edit text switch: the letter's paragraphs are typed into in place. Marked words (data-block)
+   are highlighted so they read as the ones that punch out once editing is done. */
+body.editing .sheet .note p { outline:1px dashed rgb(0 0 0 / .18); outline-offset:4px; caret-color:var(--ink); }
+body.editing .sheet .note p:focus { outline-color:rgb(0 0 0 / .4); }
+body.editing .sheet .note [data-block] { background:color-mix(in srgb, var(--block-1) 38%, transparent);
+  border-radius:3px; box-decoration-break:clone; -webkit-box-decoration-break:clone; }
+body.editing .sheet .note [data-mark="in"] { background:rgb(110 155 234 / .3); }
+body.editing .sheet .note [data-mark="out"] { background:rgb(120 190 120 / .32); }
+
+/* Pressed-in and raised marks: the words carry no ink, only the paper's own light and shadow.
+   Pressed in, the top edge of each stroke falls into shadow and the bottom catches the light;
+   raised, the other way round. The faint fill sits over the two offsets so only rims show. */
+body:not(.editing, .effects-off) .sheet .note [data-mark="in"] { color:rgb(60 45 20 / .07);
+  text-shadow:0 -1px 0 rgb(60 45 20 / .38), 0 1px 0 rgb(255 252 244 / .75), 0 0 2px rgb(60 45 20 / .12); }
+body:not(.editing, .effects-off) .sheet .note [data-mark="out"] { color:rgb(255 252 244 / .22);
+  text-shadow:0 -1px 0 rgb(255 252 244 / .8), 0 1px 0 rgb(60 45 20 / .38), 0 2px 3px rgb(60 45 20 / .2); }
+body:not(.editing) .flap .note [data-mark] { color:transparent; text-shadow:none; }
+.markBar { position:fixed; left:0; top:0; z-index:6; display:flex; gap:2px; padding:3px; border-radius:10px;
+  background:var(--nav-current); box-shadow:0 4px 14px rgb(0 0 0 / .18); transform:translate(-50%, calc(-100% - 10px)); }
+.markBar[hidden] { display:none; }
+.markBar button { height:30px; padding:0 10px; border:0; border-radius:7px; background:none; color:var(--on-ink);
+  font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; cursor:pointer; }
+.markBar button:hover, .markBar button[aria-pressed="true"] { background:rgb(255 255 255 / .16); }
+.markBar button:focus-visible { outline:2px solid var(--on-ink); outline-offset:-2px; }
+.markBar button[hidden] { display:none; }
+/* Letter font picker, bottom-left above the paper bar */
+.fontpick { position:fixed; left:20px; bottom:108px; z-index:5; display:flex; align-items:center; gap:8px;
+  font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; color:var(--ink-nav); }
+.fontpick select { font:inherit; color:var(--ink); background:none; border:0; border-bottom:1px solid var(--rule);
+  padding:4px 2px; min-height:32px; cursor:pointer; }
+.fontpick select:focus-visible { outline:2px solid var(--ink); outline-offset:2px; }
+/* Thick switch off: a flat sheet, no edge band, edge lighting or fold rim */
+body.thin .thick { display:none; }
+body.thin .sheet { box-shadow:none; }
+/* Link tabs switch off: no strip of links (or its perforations) at the bottom of the letter */
+body.no-links .links { display:none; }
+/* Construction paper is matte: no gloss */
+body.matte .sheen { display:none; }
+/* Metallic paper: broad bands of light and shadow, as on foil, blended into the paper's own
+   color (overlay) so gold stays gold. The bands slide with the pointer (--glint) and swing with
+   the sheet's angle (--ang). */
+body.metal .sheen { mix-blend-mode:overlay;
+  background:linear-gradient(var(--ang,115deg), rgb(0 0 0 / .35) 0%, rgb(255 255 255 / .75) 22%,
+    rgb(0 0 0 / .2) 40%, rgb(255 255 255 / .9) 55%, rgb(0 0 0 / .3) 72%, rgb(255 255 255 / .5) 88%, rgb(0 0 0 / .35) 100%);
+  background-size:260% 260%; background-position:calc(var(--glint, .5) * 100%) 50%;
+  transition:background-position .4s ease-out; }
+@media (prefers-reduced-motion: reduce) { body.metal .sheen { transition:none; } }
