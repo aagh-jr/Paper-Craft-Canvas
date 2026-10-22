@@ -78,6 +78,9 @@
       ctx.arc(Math.random() * N, Math.random() * N, .4 + Math.random() * 1.1, 0, Math.PI * 2);
       ctx.fill();
     }
+    // Opened from disk, Firefox (and Zen) won't paint a blob: URL as a CSS background, so the
+    // texture goes in as a data: URL there.
+    if (location.protocol === 'file:') return Promise.resolve(cv.toDataURL('image/png'));
     return new Promise(res => cv.toBlob(b => res(URL.createObjectURL(b)), 'image/png'));
   }
 
@@ -910,7 +913,11 @@
   setPunchCursor();
   build();
   makeTexture().then(url => {
-    root.style.setProperty('--tex', `url(${url})`);
+    // A real rule, not a custom property: Firefox (and Zen) won't paint an image URL that
+    // arrives through var() set from script.
+    const css = document.createElement('style');
+    css.textContent = `.tex, .chad { background-image:url("${url}"); }`;
+    document.head.append(css);
     stage.classList.add('ready');
   });
   requestAnimationFrame(tick);

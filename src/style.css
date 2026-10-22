@@ -1,4 +1,4 @@
-:root { --ink:#1d1b18; --muted:#9a9488; --s:480px; --tex:none; --serif:"Iowan Old Style","Palatino",Georgia,serif; }
+:root { --ink:#1d1b18; --muted:#9a9488; --s:480px; --serif:"Iowan Old Style","Palatino",Georgia,serif; }
 * { box-sizing:border-box; }
 html, body { margin:0; height:100%; background:#fff; overflow:hidden; color:var(--ink);
   font:12px/1.4 ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", sans-serif; -webkit-font-smoothing:antialiased; }
@@ -24,7 +24,7 @@ body.under #underlay { opacity:1; }
 #stage.ready { opacity:1; }
 .piece { position:absolute; left:0; top:0; transform-origin:0 0; will-change:transform; }
 .layer { position:absolute; left:0; top:0; }
-.tex { background-image:var(--tex); background-size:var(--s) var(--s);
+.tex { background-size:var(--s) var(--s);
   -webkit-backdrop-filter:blur(5px) contrast(.82) brightness(1.04) saturate(.75);
           backdrop-filter:blur(5px) contrast(.82) brightness(1.04) saturate(.75); }
 .sheen { position:absolute; inset:0; pointer-events:none;
@@ -49,7 +49,7 @@ body.under #underlay { opacity:1; }
 .rims { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; }
 .rims circle { fill:none; stroke:rgb(255 252 244 / .55); stroke-width:1.6; filter:blur(.6px); }
 #chads { position:fixed; inset:0; pointer-events:none; }
-.chad { position:absolute; left:0; top:0; border-radius:50%; background-image:var(--tex);
+.chad { position:absolute; left:0; top:0; border-radius:50%;
   box-shadow:0 .5px 1.5px rgb(52 40 20 / .14); will-change:transform;
   -webkit-backdrop-filter:blur(3px) contrast(.85) brightness(1.03);
           backdrop-filter:blur(3px) contrast(.85) brightness(1.03); }
